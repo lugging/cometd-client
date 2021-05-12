@@ -1,0 +1,159 @@
+<nz-layout>
+    <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" [nzTrigger]="null">
+      <div class="logo"></div>
+      <ul nz-menu nzTheme="dark" nzMode="inline">
+        <li nz-submenu nzTitle="Tool" nzIcon="user">
+          <ul>
+            <li nz-menu-item>Cometd</li>
+          </ul>
+        </li>
+      </ul>
+    </nz-sider>
+    <nz-layout>
+      <nz-header>
+        <i class="trigger" nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" (click)="isCollapsed = !isCollapsed"></i>
+      </nz-header>
+      <nz-content>
+        <div class="inner-content">
+          <div class="inner-config">
+            <nz-row style="margin-top: 2px;">
+                <button nz-button nzType="primary" (click)="open()">Config</button>
+                <button nz-button nzType="primary" (click)="login()">Login</button>
+                <button nz-button nzType="primary" (click)="configChannel()">Channel</button>
+                <button nz-button nzType="primary" (click)="logout()" nzDanger="true">Logout</button>
+            </nz-row>
+            <nz-row style="margin-top: 32px;">
+              <nz-col [nzSpan]="8">
+                <nz-statistic [nzValue]="receiveCount" [nzTitle]="'recevie count'"></nz-statistic>
+              </nz-col>
+              <nz-col [nzSpan]="8">
+                <nz-statistic [nzValue]="recevieBodySize" [nzTitle]="'recevie data size'"></nz-statistic>
+              </nz-col>
+              <nz-col [nzSpan]="8">
+                <div class="ant-statistic-title">
+                  connect time 
+                </div>
+                <div class="ant-statistic-content">
+                  <p> {{ connectionTime | stopwatch }}</p>
+                </div>
+              </nz-col>
+            </nz-row>
+            <nz-divider style="margin-bottom: 10px; margin-top: 10px;"></nz-divider>
+            <nz-descriptions style="margin-top: 12px;">
+              <nz-descriptions-item nzTitle="Status">
+                <nz-badge nzStatus="{{status}}" nzText="{{processingText}}"></nz-badge>
+              </nz-descriptions-item>
+              <!-- <nz-descriptions-item nzTitle="url">{{ url }}</nz-descriptions-item> -->
+              <nz-descriptions-item nzTitle="userlogin">{{ userlogin }}</nz-descriptions-item>
+              <!-- <nz-descriptions-item nzTitle="userfrom">{{ userfrom }}</nz-descriptions-item>
+              <nz-descriptions-item nzTitle="device">{{ device }}</nz-descriptions-item>
+              <nz-descriptions-item nzTitle="token">{{ token }}</nz-descriptions-item> -->
+            </nz-descriptions>
+
+             <!-- cometd连接 配置 Drawer抽屉 -->
+            <nz-drawer
+              [nzBodyStyle]="{ overflow: 'auto' }"
+              [nzMaskClosable]="false"
+              [nzWidth]="720"
+              [nzVisible]="visible"
+              nzTitle="Create"
+              [nzFooter]="footerTpl"
+              (nzOnClose)="close()"
+            >
+              <div nz-row>
+                <div nz-col nzSpan="24"> 
+                    <input nz-input placeholder="url" [(ngModel)]="url" /><br />
+                </div>
+              </div>
+        
+              <div style="margin-top: 32px;" nz-row [nzGutter]="{ xs: 2, sm: 2, md: 2, lg: 12 }">
+                <div nz-col nzSpan="6" class="gutter-row">
+                  <input nz-input placeholder="userlogin" [(ngModel)]="userlogin" /><br />
+                </div>
+                <div nz-col nzSpan="4"> 
+                    <input nz-input placeholder="userfrom" [(ngModel)]="userfrom" /><br />
+                </div>
+                <div nz-col nzSpan="14">
+                  <input nz-input placeholder="token" [(ngModel)]="token" /><br />
+                </div>
+              </div>
+
+              <div style="margin-top: 32px;" nz-row [nzGutter]="{ xs: 2, sm: 2, md: 2, lg: 12 }">
+                <div nz-col nzSpan="24"> 
+                  <nz-select nzMode="tags" nzPlaceHolder="subscribers channel" [(ngModel)]="channels">
+                    <nz-option *ngFor="let channel of channels" [nzLabel]="channel" [nzValue]="channel"></nz-option>
+                  </nz-select>
+                </div>
+              </div>
+
+              <nz-divider style="color: #bbbbbb;margin-top: 48px;" nzText="json" nzDashed nzPlain></nz-divider>
+
+              <div style="margin-top: 32px;" nz-row>
+                <div nz-col nzSpan="24"> 
+                  <textarea rows="6" nz-input [(ngModel)]="inputValue" placeholder="config json" (blur)="onInput()"></textarea>
+                </div>
+              </div>
+
+              <ng-template #footerTpl>
+                <div style="float: right">
+                  <button nz-button style="margin-right: 8px;" (click)="close()">Cancel</button>
+                  <button nz-button nzType="primary" (click)="submitConfig()">Submit</button>
+                </div>
+              </ng-template>
+            </nz-drawer>
+
+            <!-- channel 配置 Drawer抽屉 -->
+            <nz-drawer [nzClosable]="true" 
+                       [nzVisible]="channelVisible" 
+                       [nzPlacement]="placement" 
+                       nzTitle="Channel config" 
+                       [nzFooter]="channelFooterTpl"
+                       nzHeight='50%'
+                       nzOffsetY=0
+                       (nzOnClose)="channelVisible = false ">
+              <nz-table #editRowTable nzBordered [nzData]="channels" nzSize="small">
+                <thead>
+                  <tr>
+                    <th nzWidth="40%">channel name</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let data of channels" class="editable-row">
+                    <td>{{ data }}</td>
+                    <td>
+                      <button nz-button nzType="primary" (click)="subscribe(data)" nzSize="small">Subscribe</button>
+                      <button nz-button nzType="primary" (click)="unsubscribe(data)" nzSize="small" nzDanger=true>Unsubscribe</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </nz-table>
+
+              <ng-template #channelFooterTpl>
+                <div style="float: right">
+                  <button nz-button nzType="primary" (click)="subscribeAll()">Subscribe All</button>
+                  <button nz-button nzType="primary" (click)="unsubscribeAll()" nzDanger="true">Unsubscribe All</button>
+                </div>
+              </ng-template>
+            </nz-drawer>
+          </div>
+
+          <nz-divider nzDashed="true" style="margin-top: 10px;"></nz-divider>
+          
+          <div class="inner-message">
+            <nz-list nzItemLayout="horizontal" nzSize="small">
+              <nz-list-item *ngFor="let item of ds">
+                <nz-list-item-meta nzDescription="{{ item.channel }}">
+                  <nz-list-item-meta-title>
+                    {{ item.data | json }}
+                  </nz-list-item-meta-title>
+                </nz-list-item-meta>
+              </nz-list-item>
+              <nz-list-empty *ngIf="ds.length === 0"></nz-list-empty>
+            </nz-list>
+          </div>
+        </div>
+      </nz-content>
+      <nz-footer>Cometd Client Implement By Angular</nz-footer>
+    </nz-layout>
+  </nz-layout>
