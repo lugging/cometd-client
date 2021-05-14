@@ -1,13 +1,36 @@
 {
   "name": "cometd-client",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "main": "main.js",
+  "build": {
+    "appId": "com.cometd.app",
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "favicon.ico"
+    ]
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href ./",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "electron-start": "electron .",
+    "dist": "ng build --base-href ./ && electron-builder --mac --x64",
+    "dist:win": "ng build --base-href ./ && electron-builder --win --x64"
   },
   "private": true,
   "dependencies": {
@@ -20,6 +43,7 @@
     "@angular/platform-browser-dynamic": "~11.2.13",
     "@angular/router": "~11.2.13",
     "@types/cometd": "^4.0.8",
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
     "cometd": "^5.0.2",
     "ng": "^0.0.0",
     "ng-zorro-antd": "^11.4.1",
@@ -35,7 +59,8 @@
     "@types/jasminewd2": "~2.0.3",
     "@types/node": "^12.11.1",
     "codelyzer": "^6.0.0",
-    "electron": "^11.1.0",
+    "electron": "^12.0.7",
+    "electron-builder": "^22.11.3",
     "jasmine-core": "~3.6.0",
     "jasmine-spec-reporter": "~5.0.0",
     "karma": "~6.3.2",
